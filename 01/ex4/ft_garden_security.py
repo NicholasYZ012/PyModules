@@ -1,16 +1,14 @@
 class Plant:
-    def __init__(self, name: str, height: float, curr_age: int):
-        self.name = name
+    def __init__(self, name: str, height: float, curr_age: int) -> None:
+        self.name = name.casefold().capitalize()
         self.height = height
         self.curr_age = curr_age
-        print('Created: ', end="")
-        self.show()
 
-    def show(self):
+    def show(self) -> None:
         print(f'{self.name.capitalize()}: ', end="")
         print(f'{self.height}cm, {self.curr_age} day(s) old')
 
-    def age(self):
+    def age(self) -> None:
         self.curr_age += 1
 
     def grow(self, days: int) -> float:
@@ -21,8 +19,9 @@ class Plant:
         elif k == 0:
             k = (22 / 7) * (10 ** self.curr_age) % 10 / 10
 
-        def f(t: int) -> int:
-            return 1 + 1 / (2.71818 ** (k * (t - tm)))
+        def f(t: int) -> float:
+            result: float = 1 + 1 / (2.71818 ** (k * (t - tm)))
+            return result
         for n in range(days):
             t0 = self.curr_age
             h0 = self.height
@@ -32,6 +31,21 @@ class Plant:
             print(f'=== Day {n + 1} ===')
             self.show()
         return self.height
+
+    def set_height(self, new_height: int) -> None:
+        if new_height < 0:
+            print('')
+        else:
+            self.height = new_height
+
+    def set_age(self, new_age: int) -> None:
+        self.curr_age = new_age
+
+    def get_height(self) -> float:
+        return self.height
+
+    def get_age(self) -> int:
+        return self.curr_age
 
 
 if __name__ == "__main__":

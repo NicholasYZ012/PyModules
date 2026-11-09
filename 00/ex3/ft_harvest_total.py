@@ -1,4 +1,4 @@
-def ft_harvest_total():
+def ft_harvest_total() -> None:
     weight = 0
     n = 1
     while n <= 3:
