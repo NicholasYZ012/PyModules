@@ -13,12 +13,12 @@ class Plant:
     def show(self) -> 'Plant':
         print(f'{self._name.capitalize()}: ', end="")
         print(f'{self._height}cm, {self._curr_age} day(s) old')
-        self._stats._show_calls += 1
+        self._stats.record_show()
         return self
 
     def age(self) -> 'Plant':
         self._curr_age += 1
-        self._stats._age_calls += 1
+        self._stats.record_age()
         return self
 
     def grow(self, days: int) -> 'Plant':
@@ -38,7 +38,7 @@ class Plant:
             h1 = h0 * f(t0) / f(t0 + 1)
             self._height = round(h1, 1)
             self._curr_age += 1
-        self._stats._grow_calls += 1
+        self._stats.record_grow()
         return self
 
     def set_height(self, new_height: float) -> None:
@@ -71,7 +71,14 @@ class Plant:
 
     @classmethod
     def create_anon(cls) -> 'Plant':
-        return cls("Unknown plant", 0, 0)
+        if cls == Flower or cls == Seed:
+            return cls('Unknown flower', 0, 0, 'Unknown color')
+        elif cls == Tree:
+            return cls('Unknown tree', 0, 0, 0)
+        elif cls == Vegetable:
+            return cls('Unknown vegetable', 0, 0,
+                       'Unknown season')
+        return cls('Unknown plant', 0, 0)
 
     class _Stats:
         def __init__(self) -> None:
@@ -79,18 +86,26 @@ class Plant:
             self._age_calls = 0
             self._show_calls = 0
 
-        def display(self) -> None:
-            print(f'Stats: {self._grow_calls} grow', end=' ')
-            print(f'{self._age_calls} age', end=' ')
-            print(f'{self._show_calls} show')
+        def record_age(self) -> None:
+            self._age_calls += 1
+
+        def record_grow(self) -> None:
+            self._grow_calls += 1
+
+        def record_show(self) -> None:
+            self._show_calls += 1
+
+    def display(self) -> None:
+        print(f'Stats: {self._stats._grow_calls} grow', end=' ')
+        print(f'{self._stats._age_calls} age', end=' ')
+        print(f'{self._stats._show_calls} show')
 
 
 class Flower(Plant):
-    def __init__(self, name: str, height: int,
-                curr_age: int, color: str) -> None:
+    def __init__(self, color: str, *args) -> None:
         self._bloom_state = 'unbloom'
         self._color = color.casefold()
-        super().__init__(name, height, curr_age)
+        super().__init__(*args)
 
     def show(self) -> 'Flower':
         super().show()
@@ -109,40 +124,43 @@ class Flower(Plant):
 
 
 class Tree(Plant):
-    def __init__(self, name: str, height: int, curr_age: int,
-                 trunk_diameter: float) -> None:
+    def __init__(self, trunk_diameter: float, *args) -> None:
         self._trunk_diameter = round(trunk_diameter, 1)
-        super().__init__(name, height, curr_age)
+        super().__init__(*args)
 
     def show(self) -> 'Tree':
         super().show()
         print(f'Trunk diameter: {self._trunk_diameter}cm\n')
         return self
 
-    def produce_shade(self) -> 'Tree':
-        self._stats._shade_calls += 1
-        print(f'[asking the {self._name.casefold()} to produce shade]')
-        print(f'Tree {self._name} now produces ', end='')
-        print(f'a shade of {self._height}cm long ', end='')
-        print(f'and {self._trunk_diameter}cm wide.\n')
-        return self
+    def display(self) -> None:
+        super().display()
+        print(f'{self._stats._shade_calls} shade')
 
     class _Stats(Plant._Stats):
         def __init__(self) -> None:
             super().__init__()
             self._shade_calls = 0
 
-        def display(self) -> None:
-            super().display()
-            print(f'{self._shade_calls} shade')
+        def record_shade(self) -> None:
+            self._shade_calls += 1
+
+    _stats: _Stats
+
+    def produce_shade(self) -> 'Tree':
+        self._stats.record_shade()
+        print(f'[asking the {self._name.casefold()} to produce shade]')
+        print(f'Tree {self._name} now produces ', end='')
+        print(f'a shade of {self._height}cm long ', end='')
+        print(f'and {self._trunk_diameter}cm wide.\n')
+        return self
 
 
 class Vegetable(Plant):
-    def __init__(self, name: str, height: int, curr_age: int,
-                 harvest_season: str) -> None:
+    def __init__(self, harvest_season: str, *args) -> None:
         self._harvest_season = harvest_season.casefold().capitalize()
         self._nutritional_value = 0
-        super().__init__(name, height, curr_age)
+        super().__init__(*args)
 
     def show(self) -> 'Vegetable':
         super().show()
@@ -150,22 +168,17 @@ class Vegetable(Plant):
         print(f'Nutritional value: {self._nutritional_value}\n')
         return self
 
-    def age(self) -> 'Vegetable':
-        super().age()
-        self._nutritional_value += 1
-        return self
-
     def grow(self, days: int) -> 'Vegetable':
         super().grow(days)
+        self._nutritional_value += days
         return self
 
 
 class Seed(Flower):
-    def __init__(self, name: str, height: int,
-                curr_age: int, color: str) -> None:
-        self._ori_age = curr_age
+    def __init__(self, *args) -> None:
         self._seed_count = 0
-        super().__init__(name, height, curr_age, color)
+        super().__init__(*args)
+        self._ori_age = self._curr_age
 
     def show(self) -> 'Seed':
         super().show()
@@ -174,12 +187,13 @@ class Seed(Flower):
 
     def bloom(self) -> 'Seed':
         super().bloom()
-        self._seed_count = self._ori_age - self._curr_age
+        self._seed_count = self._curr_age - self._ori_age
+        return self
 
 
 def disp_stats(plant: Plant) -> None:
     print(f'[statistics for {plant._name}]')
-    plant._stats.display()
+    plant.display()
 
 
 if __name__ == "__main__":
@@ -189,6 +203,6 @@ if __name__ == "__main__":
     f1 = Flower('Rose', 3, 3, 'white')
     v1.grow(600)
     t1.produce_shade()
+    Seed.create_anon()
     disp_stats(t1)
     disp_stats(v1)
-
