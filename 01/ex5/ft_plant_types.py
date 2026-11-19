@@ -61,10 +61,11 @@ class Plant:
 
 
 class Flower(Plant):
-    def __init__(self, color: str, *args) -> None:
+    def __init__(self, name: str, height: float, curr_age: int,
+                 color: str) -> None:
         self._bloom_state = 'unbloom'
         self._color = color.casefold()
-        super().__init__(*args)
+        super().__init__(name, height, curr_age)
 
     def show(self) -> 'Flower':
         super().show()
@@ -83,9 +84,10 @@ class Flower(Plant):
 
 
 class Tree(Plant):
-    def __init__(self, trunk_diameter: float, *args) -> None:
+    def __init__(self, name: str, height: float, curr_age: int,
+                 trunk_diameter: float) -> None:
         self._trunk_diameter = round(trunk_diameter, 1)
-        super().__init__(*args)
+        super().__init__(name, height, curr_age)
 
     def show(self) -> 'Tree':
         super().show()
@@ -101,10 +103,11 @@ class Tree(Plant):
 
 
 class Vegetable(Plant):
-    def __init__(self, harvest_season: str, *args) -> None:
+    def __init__(self, name: str, height: float, curr_age: int,
+                 harvest_season: str) -> None:
         self._harvest_season = harvest_season.casefold().capitalize()
         self._nutritional_value = 0
-        super().__init__(*args)
+        super().__init__(name, height, curr_age)
 
     def show(self) -> 'Vegetable':
         super().show()
