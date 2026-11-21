@@ -2,8 +2,19 @@ import sys
 
 def processing(scores: list[int]) -> list[int]:
     try:
+        proc = {
+            'plycount': len(scores),
+            'totscore': sum(scores),
+            'avgscore': sum(scores) / len(scores),
+            'max': max(scores),
+            'min': min(scores),
+            'range': max(scores) - min(scores)
+        }
+    except ValueError:
         pass
-    except:
+    except ZeroDivisionError:
+        pass
+    except TypeError:
         pass
 
 
